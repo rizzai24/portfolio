@@ -251,5 +251,110 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+let selectedRating = 0;
+
+const ratingStars = document.querySelectorAll(".rate-stars button");
+const feedbackText = document.getElementById("feedbackText");
+const ratingText = document.getElementById("ratingText");
+const charCount = document.getElementById("charCount");
+
+const ratingLabels = {
+  1: "ouch 😭",
+  2: "could be better...",
+  3: "not bad 👀",
+  4: "okayyy 🔥",
+  5: "WE LOVE TO SEE IT 🫡"
+};
+
+ratingStars.forEach(star => {
+  star.addEventListener("click", () => {
+
+    selectedRating = Number(star.dataset.rating);
+
+    ratingStars.forEach(s => {
+      s.classList.toggle(
+        "active",
+        Number(s.dataset.rating) <= selectedRating
+      );
+    });
+
+    ratingText.textContent = ratingLabels[selectedRating];
+  });
+});
+
+feedbackText.addEventListener("input", () => {
+  charCount.textContent =
+    `${feedbackText.value.length} / 280`;
+});
+
+document
+  .getElementById("submitFeedback")
+  .addEventListener("click", () => {
+
+    if (!selectedRating) {
+      alert("Pick a star first ⭐");
+      return;
+    }
+
+    if (!feedbackText.value.trim()) {
+      alert("Drop your thoughts 👀");
+      return;
+    }
+
+    const reviews =
+      JSON.parse(localStorage.getItem("harizzReviews")) || [];
+
+    reviews.push({
+      rating: selectedRating,
+      feedback: feedbackText.value.trim()
+    });
+
+    localStorage.setItem(
+      "harizzReviews",
+      JSON.stringify(reviews)
+    );
+
+    updateRating();
+
+    feedbackText.value = "";
+    charCount.textContent = "0 / 280";
+    ratingText.textContent = "feedback received 🫶";
+
+    selectedRating = 0;
+
+    ratingStars.forEach(star =>
+      star.classList.remove("active")
+    );
+});
+
+function updateRating() {
+
+  const reviews =
+    JSON.parse(localStorage.getItem("harizzReviews")) || [];
+
+  document.getElementById("reviewCount").textContent =
+    reviews.length;
+
+  if (!reviews.length) return;
+
+  const total =
+    reviews.reduce((sum, review) =>
+      sum + review.rating, 0);
+
+  const average = total / reviews.length;
+
+  document.getElementById("averageRating").textContent =
+    average.toFixed(1);
+
+  const rounded = Math.round(average);
+
+  document.getElementById("starsDisplay").textContent =
+    "★".repeat(rounded) +
+    "☆".repeat(5 - rounded);
+}
+
+updateRating();
+</script>
 </body>
 </html>
