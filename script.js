@@ -10,6 +10,9 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("Supabase connected ✅");
+const session = {
+  rating: 0
+};
 // ===== SHARED PORTFOLIO RATINGS =====
 
 async function loadReviews() {
@@ -63,3 +66,48 @@ function escapeHtml(text) {
 }
 
 loadReviews();
+// ===== SAVE NEW REVIEW =====
+async function submitReview() {
+  const comment = document.getElementById("hcComment")?.value.trim();
+  const rating = session?.rating;
+
+  if (!rating) {
+    alert("Pick a rating first ⭐");
+    return;
+  }
+
+  if (!comment || comment.length < 3) {
+    alert("Drop at least a few words 😭");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("portfolio_reviews")
+    .insert({
+      rating: rating,
+      feedback: comment
+    });
+
+  if (error) {
+    console.error(error);
+    alert("Couldn't post the take. Try again 👀");
+    return;
+  }
+
+  await loadReviews();
+
+  document.getElementById("hcReviewStep").hidden = true;
+  document.getElementById("hcThanksStep").hidden = false;
+
+  document.getElementById("hcComment").value = "";
+  document.getElementById("hcCharCount").textContent = "0";
+  session.rating = 0;
+
+  document
+    .querySelectorAll("#hcStarPicker button")
+    .forEach(x => x.classList.remove("active"));
+}
+
+document
+  .getElementById("hcSubmitReview")
+  ?.addEventListener("click", submitReview);
