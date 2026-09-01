@@ -68,7 +68,7 @@ function escapeHtml(text) {
 loadReviews();
 // ===== SAVE NEW REVIEW =====
 async function submitReview() {
-  const comment = document.getElementById("hcComment")?.value.trim();
+ const comment = document.getElementById("feedbackText")?.value.trim();
   const rating = session?.rating;
 
   if (!rating) {
@@ -96,18 +96,41 @@ async function submitReview() {
 
   await loadReviews();
 
-  document.getElementById("hcReviewStep").hidden = true;
-  document.getElementById("hcThanksStep").hidden = false;
+  document.getElementById("feedbackText").value = "";
+document.getElementById("charCount").textContent = "0";
+document.getElementById("ratingText").textContent = "tap a star ↑";
 
-  document.getElementById("hcComment").value = "";
-  document.getElementById("hcCharCount").textContent = "0";
+alert("Thanks for the feedback! 🔥");
   session.rating = 0;
 
-  document
-    .querySelectorAll("#hcStarPicker button")
-    .forEach(x => x.classList.remove("active"));
+ document
+  .querySelectorAll("#ratingStars button")
+  .forEach(x => x.classList.remove("active"));
 }
 
+// STAR RATING
+document.querySelectorAll("#ratingStars button").forEach(button => {
+  button.addEventListener("click", () => {
+    session.rating = Number(button.dataset.rating);
+
+    document.querySelectorAll("#ratingStars button").forEach(star => {
+      star.classList.toggle(
+        "active",
+        Number(star.dataset.rating) <= session.rating
+      );
+    });
+
+    document.getElementById("ratingText").textContent =
+      `${session.rating}/5 — nice choice 😎`;
+  });
+});
+
+// CHARACTER COUNT
+document.getElementById("feedbackText")?.addEventListener("input", function () {
+  document.getElementById("charCount").textContent = this.value.length;
+});
+
+// SUBMIT BUTTON
 document
-  .getElementById("hcSubmitReview")
+  .getElementById("submitFeedback")
   ?.addEventListener("click", submitReview);
