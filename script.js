@@ -134,3 +134,4 @@ document.getElementById("feedbackText")?.addEventListener("input", function () {
 document
   .getElementById("submitFeedback")
   ?.addEventListener("click", submitReview);
+alert("SCRIPT IS WORKING 🔥");
